@@ -26,4 +26,11 @@ class Analyzer extends Model
         AnalyzerTestMapping::class
     );
 }
+
+public function analyzerTests()
+{
+    return $this->hasMany(
+        AnalyzerTestMapping::class
+    );
+}
 }

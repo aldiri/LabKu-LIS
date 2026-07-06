@@ -93,6 +93,12 @@
 
                         <th>
 
+    Unit
+
+</th>
+
+                        <th>
+
                             Result Format
 
                         </th>
@@ -150,6 +156,12 @@
                         {{ $row->method->method_name }}
 
                     </td>
+
+                    <td>
+
+    {{ $reference->unit->unit_name ?? '-' }}
+
+</td>
 
                     <td>
 

@@ -22,4 +22,11 @@ class Unit extends Model
         AnalyzerTestMapping::class
     );
 }
+
+public function referenceHeaders()
+{
+    return $this->hasMany(
+        ReferenceHeader::class
+    );
+}
 }

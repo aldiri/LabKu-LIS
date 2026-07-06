@@ -62,4 +62,18 @@ public function referenceRanges()
         ReferenceRange::class
     );
 }
+
+public function analyzerTests()
+{
+    return $this->hasMany(
+        AnalyzerTestMapping::class
+    );
+}
+
+public function referenceHeaders()
+{
+    return $this->hasMany(
+        ReferenceHeader::class
+    );
+}
 }

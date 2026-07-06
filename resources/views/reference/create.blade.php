@@ -123,6 +123,41 @@
 
             <div class="form-group mt-3">
 
+    <label>
+
+        Unit
+
+    </label>
+
+    <select
+        name="unit_id"
+        class="form-control select2"
+        required>
+
+        <option value="">
+
+            -- Pilih Unit --
+
+        </option>
+
+        @foreach($units as $unit)
+
+            <option
+                value="{{ $unit->id }}"
+                {{ old('unit_id')==$unit->id ? 'selected' : '' }}>
+
+                {{ $unit->unit_name }}
+
+            </option>
+
+        @endforeach
+
+    </select>
+
+</div>
+
+            <div class="form-group mt-3">
+
                 <label>
 
                     Result Format

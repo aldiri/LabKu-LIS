@@ -12,6 +12,8 @@ class ReferenceHeader extends Model
 
         'method_id',
 
+        'unit_id',
+
         'result_format',
 
         'is_active'
@@ -23,12 +25,6 @@ class ReferenceHeader extends Model
         'is_active' => 'boolean'
 
     ];
-
-    /*
-    |--------------------------------------------------------------------------
-    | RELATION
-    |--------------------------------------------------------------------------
-    */
 
     public function testParameter()
     {
@@ -44,19 +40,18 @@ class ReferenceHeader extends Model
         );
     }
 
+    public function unit()
+    {
+        return $this->belongsTo(
+            Unit::class
+        );
+    }
+
     public function details()
-{
-    return $this->hasMany(ReferenceDetail::class)
-        ->orderByRaw("
-            CASE flag
-                WHEN 'NORMAL' THEN 1
-                WHEN 'LOW' THEN 2
-                WHEN 'HIGH' THEN 3
-                WHEN 'XLOW' THEN 4
-                WHEN 'XHIGH' THEN 5
-            END
-        ")
-        ->orderBy('gender')
-        ->orderBy('begin_age');
-}
+    {
+        return $this->hasMany(
+            ReferenceDetail::class,
+            'reference_header_id'
+        );
+    }
 }

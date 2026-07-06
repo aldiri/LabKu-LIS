@@ -14,44 +14,28 @@ class AnalyzerTestMapping extends Model
 
         'method_id',
 
-        'unit_id',
-
         'is_active'
+
+    ];
+
+    protected $casts = [
+
+        'is_active' => 'boolean'
 
     ];
 
     public function analyzer()
     {
-        return $this->belongsTo(
-            Analyzer::class
-        );
+        return $this->belongsTo(Analyzer::class);
     }
 
     public function testParameter()
     {
-        return $this->belongsTo(
-            TestParameter::class
-        );
+        return $this->belongsTo(TestParameter::class);
     }
 
     public function method()
     {
-        return $this->belongsTo(
-            Method::class
-        );
+        return $this->belongsTo(Method::class);
     }
-
-    public function unit()
-    {
-        return $this->belongsTo(
-            Unit::class
-        );
-    }
-
-    public function mappings()
-{
-    return $this->hasMany(
-        AnalyzerTestMapping::class
-    );
-}
 }

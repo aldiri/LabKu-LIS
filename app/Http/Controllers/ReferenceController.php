@@ -8,239 +8,167 @@ use App\Models\TestParameter;
 use Illuminate\Http\Request;
 use App\Models\ReferenceDetail;
 use Illuminate\Support\Facades\DB;
+use App\Models\Unit;
 
 class ReferenceController extends Controller
 {
     /**
      * Display Listing
      */
-    public function index(Request $request)
-    {
-        $query = ReferenceHeader::with([
-            'testParameter',
-            'method'
-        ])->withCount('details');
+    public function index()
+{
+    $references = ReferenceHeader::with([
+        'testParameter',
+        'method',
+        'unit'
+    ])
+    ->orderBy('test_parameter_id')
+    ->paginate(20);
 
-        if ($request->filled('search')) {
-
-            $search = $request->search;
-
-            $query->where(function ($q) use ($search) {
-
-                $q->whereHas('testParameter', function ($test) use ($search) {
-
-                    $test->where('test_id', 'like', "%{$search}%")
-                        ->orWhere('nama_test', 'like', "%{$search}%");
-
-                });
-
-                $q->orWhereHas('method', function ($method) use ($search) {
-
-                    $method->where('method_name', 'like', "%{$search}%");
-
-                });
-
-            });
-
-        }
-
-        $references = $query
-            ->orderBy('test_parameter_id')
-            ->paginate(20)
-            ->withQueryString();
-
-        return view(
-            'reference.index',
-            compact('references')
-        );
-    }
+    return view(
+        'reference.index',
+        compact('references')
+    );
+}
 
     /**
      * Create Form
      */
     public function create()
-    {
-        $tests = TestParameter::orderBy('nama_test')->get();
+{
+    $tests = TestParameter::orderBy('nama_test')->get();
 
-        $methods = Method::orderBy('method_name')->get();
+    $methods = Method::orderBy('method_name')->get();
 
-        return view(
-            'reference.create',
-            compact(
-                'tests',
-                'methods'
-            )
-        );
-    }
+    $units = Unit::orderBy('unit_name')->get();
+
+    return view(
+        'reference.create',
+        compact(
+            'tests',
+            'methods',
+            'units'
+        )
+    );
+}
 
     /**
      * Store
      */
     public function store(Request $request)
-    {
-        $request->validate([
+{
+    $request->validate([
 
-            'test_parameter_id' => 'required',
+        'test_parameter_id' => 'required',
 
-            'method_id' => 'required'
+        'method_id' => 'required',
 
-        ]);
+        'unit_id' => 'required',
 
-        $duplicate = ReferenceHeader::where(
-                'test_parameter_id',
-                $request->test_parameter_id
-            )
-            ->where(
-                'method_id',
-                $request->method_id
-            )
-            ->exists();
+    ]);
 
-        if ($duplicate) {
+    ReferenceHeader::create([
 
-            return back()
-                ->withInput()
-                ->withErrors([
+        'test_parameter_id' => $request->test_parameter_id,
 
-                    'duplicate' =>
-                    'Reference sudah ada.'
+        'method_id' => $request->method_id,
 
-                ]);
+        'unit_id' => $request->unit_id,
 
-        }
+        'result_format' => $request->result_format,
 
-        ReferenceHeader::create([
+        'is_active' => $request->has('is_active')
 
-            'test_parameter_id' => $request->test_parameter_id,
+    ]);
 
-            'method_id' => $request->method_id,
-
-            'result_format' => $request->result_format,
-
-            'is_active' => $request->has('is_active')
-
-        ]);
-
-        return redirect()
-            ->route('references.index')
-            ->with(
-                'success',
-                'Reference berhasil ditambahkan.'
-            );
-    }
+    return redirect()
+        ->route('references.index')
+        ->with(
+            'success',
+            'Reference berhasil ditambahkan.'
+        );
+}
 
     /**
      * Edit Form
      */
-    public function edit(
-        ReferenceHeader $reference
-    )
-    {
-        $tests = TestParameter::orderBy('nama_test')->get();
+   public function edit(
+    ReferenceHeader $reference
+)
+{
+    $tests = TestParameter::orderBy('nama_test')->get();
 
-        $methods = Method::orderBy('method_name')->get();
+    $methods = Method::orderBy('method_name')->get();
 
-        return view(
-            'reference.edit',
-            compact(
-                'reference',
-                'tests',
-                'methods'
-            )
-        );
-    }
+    $units = Unit::orderBy('unit_name')->get();
+
+    return view(
+        'reference.edit',
+        compact(
+            'reference',
+            'tests',
+            'methods',
+            'units'
+        )
+    );
+}
 
     /**
      * Update
      */
     public function update(
-        Request $request,
-        ReferenceHeader $reference
-    )
-    {
-        $request->validate([
+    Request $request,
+    ReferenceHeader $reference
+)
+{
+    $request->validate([
 
-            'test_parameter_id' => 'required',
+        'test_parameter_id' => 'required',
 
-            'method_id' => 'required'
+        'method_id' => 'required',
 
-        ]);
+        'unit_id' => 'required',
 
-        $duplicate = ReferenceHeader::where(
-                'test_parameter_id',
-                $request->test_parameter_id
-            )
-            ->where(
-                'method_id',
-                $request->method_id
-            )
-            ->where(
-                'id',
-                '!=',
-                $reference->id
-            )
-            ->exists();
+    ]);
 
-        if ($duplicate) {
+    $reference->update([
 
-            return back()
-                ->withInput()
-                ->withErrors([
+        'test_parameter_id' => $request->test_parameter_id,
 
-                    'duplicate' =>
-                    'Reference sudah ada.'
+        'method_id' => $request->method_id,
 
-                ]);
+        'unit_id' => $request->unit_id,
 
-        }
+        'result_format' => $request->result_format,
 
-        $reference->update([
+        'is_active' => $request->has('is_active')
 
-            'test_parameter_id' => $request->test_parameter_id,
+    ]);
 
-            'method_id' => $request->method_id,
-
-            'result_format' => $request->result_format,
-
-            'is_active' => $request->has('is_active')
-
-        ]);
-
-        return redirect()
-            ->route('references.index')
-            ->with(
-                'success',
-                'Reference berhasil diupdate.'
-            );
-    }
+    return redirect()
+        ->route('references.index')
+        ->with(
+            'success',
+            'Reference berhasil diupdate.'
+        );
+}
 
     /**
      * Delete
      */
     public function destroy(
-        ReferenceHeader $reference
-    )
-    {
-        if ($reference->details()->count() > 0) {
+    ReferenceHeader $reference
+)
+{
+    $reference->delete();
 
-            return back()->withErrors([
-
-                'delete' =>
-                'Reference tidak dapat dihapus karena masih mempunyai Mapping Nilai Normal.'
-
-            ]);
-
-        }
-
-        $reference->delete();
-
-        return redirect()
-            ->route('references.index')
-            ->with(
-                'success',
-                'Reference berhasil dihapus.'
-            );
-    }
+    return redirect()
+        ->route('references.index')
+        ->with(
+            'success',
+            'Reference berhasil dihapus.'
+        );
+}
 
     public function copyMapping(Request $request, ReferenceHeader $reference)
 {

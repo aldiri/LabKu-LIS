@@ -192,3 +192,8 @@ Route::post(
     'references/{reference}/copy-mapping',
     [ReferenceController::class,'copyMapping']
 )->name('references.copy.mapping');
+
+Route::resource(
+    'analyzer-tests',
+    AnalyzerTestMappingController::class
+);

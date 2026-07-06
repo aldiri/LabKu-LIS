@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('reference_headers', function (Blueprint $table) {
@@ -16,32 +13,36 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('test_parameter_id')
-                ->constrained('test_parameters')
-                ->cascadeOnDelete();
+                  ->constrained()
+                  ->cascadeOnDelete();
 
             $table->foreignId('method_id')
-                ->constrained('methods')
-                ->cascadeOnDelete();
+                  ->constrained()
+                  ->cascadeOnDelete();
 
-            $table->string('result_format',50)
-                ->nullable();
+            $table->foreignId('unit_id')
+                  ->constrained()
+                  ->cascadeOnDelete();
+
+            $table->string('result_format')
+                  ->nullable();
 
             $table->boolean('is_active')
-                ->default(true);
+                  ->default(true);
 
             $table->timestamps();
 
-            $table->unique([
-                'test_parameter_id',
-                'method_id'
-            ]);
+            $table->unique(
+                [
+                    'test_parameter_id',
+                    'method_id'
+                ],
+                'ref_header_unique'
+            );
 
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('reference_headers');
